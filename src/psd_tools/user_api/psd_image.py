@@ -231,21 +231,28 @@ class PSDImage(object):
         self.embedded = [Embedded(linked) for linked in self._linked_layer_iter()]
 
     @classmethod
-    def load(cls, path, encoding='utf8'):
+    def load(cls, path, encoding='utf8', progress_callback = None):
         """
         Returns a new :class:`PSDImage` loaded from ``path``.
         """
         with open(path, 'rb') as fp:
-            return cls.from_stream(fp, encoding)
+            return cls.from_stream(fp, encoding, progress_callback)
 
     @classmethod
-    def from_stream(cls, fp, encoding='utf8'):
+    def from_stream(cls, fp, encoding='utf8', progress_callback = None):
         """
         Returns a new :class:`PSDImage` loaded from stream ``fp``.
         """
-        decoded_data = psd_tools.decoder.parse(
-            psd_tools.reader.parse(fp, encoding)
-        )
+        def report_read_progress(progress):
+            if progress_callback != None:
+                progress_callback(progress / 2)
+
+        def report_decode_progress(progress):
+            if progress_callback != None:
+                progress_callback(progress / 2 + 0.5)
+
+        output = psd_tools.reader.parse(fp, encoding, report_read_progress)
+        decoded_data = psd_tools.decoder.parse(output, report_decode_progress)
         return cls(decoded_data)
 
     def as_PIL(self):

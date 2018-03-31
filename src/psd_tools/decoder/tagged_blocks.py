@@ -52,8 +52,10 @@ def parse_tagged_block(block):
     Replaces "data" attribute of a block with parsed data structure
     if it is known how to parse it.
     """
-    if not TaggedBlock.is_known(block.key):
-        warnings.warn("Unknown tagged block (%s)" % block.key)
+
+    # kspes: silencing this to reduce output spam
+    # if not TaggedBlock.is_known(block.key):
+    #     warnings.warn("Unknown tagged block (%s)" % block.key)
 
     decoder = _tagged_block_decoders.get(block.key, lambda data: data)
     return Block(block.key, decoder(block.data))

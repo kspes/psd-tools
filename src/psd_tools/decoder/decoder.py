@@ -5,14 +5,22 @@ from . import image_resources, tagged_blocks, color
 import io
 from psd_tools.constants import TaggedBlock
 
-def parse(reader_parse_result):
-    image_resource_blocks = reader_parse_result.image_resource_blocks
-    image_resource_blocks = image_resources.decode(image_resource_blocks)
+def parse(reader_parse_result, progress_callback = None):
+    def progress(value):
+        if progress_callback != None:
+            progress_callback(value)
 
+    image_resource_blocks = reader_parse_result.image_resource_blocks
+    progress(0.2)
+    image_resource_blocks = image_resources.decode(image_resource_blocks)
+    progress(0.4)
     layer_and_mask_data = reader_parse_result.layer_and_mask_data
     _layers = decode_layers(layer_and_mask_data.layers)
+    progress(0.6)
     _global_mask_info = decode_global_mask_info(layer_and_mask_data.global_mask_info)
+    progress(0.7)
     _tagged_blocks = tagged_blocks.decode(layer_and_mask_data.tagged_blocks)
+    progress(0.8)
 
     # 16 and 32 bit layers are stored in Lr16 and Lr32 tagged blocks
     if _layers.layer_count == 0:
@@ -23,17 +31,18 @@ def parse(reader_parse_result):
             _layers = blocks_dict.get(TaggedBlock.LAYER_32, _layers)
 
     # XXX: this code is complicated because of the namedtuple abuse
+
     layer_and_mask_data = layer_and_mask_data._replace(
         layers = _layers,
         global_mask_info = _global_mask_info,
         tagged_blocks = _tagged_blocks
     )
-
+    progress(0.9)
     reader_parse_result = reader_parse_result._replace(
         image_resource_blocks = image_resource_blocks,
         layer_and_mask_data = layer_and_mask_data
     )
-
+    progress(1.0)
     return reader_parse_result
 
 def decode_layers(layers):
