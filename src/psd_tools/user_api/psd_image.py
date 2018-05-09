@@ -245,11 +245,11 @@ class PSDImage(object):
         """
         def report_read_progress(progress):
             if progress_callback != None:
-                progress_callback(progress / 2)
+                progress_callback(progress / 2, "reading psd file (%.0f%%)" % (progress * 100))
 
-        def report_decode_progress(progress):
+        def report_decode_progress(progress, tag):
             if progress_callback != None:
-                progress_callback(progress / 2 + 0.5)
+                progress_callback(progress / 2 + 0.5, "%s (%.0f%%)" % (tag, progress * 100))
 
         output = psd_tools.reader.parse(fp, encoding, report_read_progress)
         decoded_data = psd_tools.decoder.parse(output, report_decode_progress)

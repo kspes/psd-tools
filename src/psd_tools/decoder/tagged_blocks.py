@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals, print_function
 import warnings
 import collections
 import io
+import sys
 
 from psd_tools.constants import TaggedBlock, SectionDivider
 from psd_tools.decoder.actions import decode_descriptor, UnknownOSType
@@ -164,6 +165,9 @@ def _decode_protected(data):
 
 @register(TaggedBlock.LAYER_32)
 def _decode_layer32(data):
+    # kspes additions, had problems parsing 16 and 32 bit images, so disabling them this way
+    print("ERROR: 32bit PSD files are not supported! Use 8bit RGB color mode");
+    sys.exit(1)
     from psd_tools.reader import layers
     from psd_tools.decoder.decoder import decode_layers
     fp = io.BytesIO(data)
@@ -173,6 +177,9 @@ def _decode_layer32(data):
 
 @register(TaggedBlock.LAYER_16)
 def _decode_layer16(data):
+    # kspes additions, had problems parsing 16 and 32 bit images, so disabling them this way
+    print("ERROR: 16bit PSD files are not supported! Use 8bit RGB color mode");
+    sys.exit(1)
     from psd_tools.reader import layers
     from psd_tools.decoder.decoder import decode_layers
     fp = io.BytesIO(data)
